@@ -33,11 +33,11 @@ class Feed(Base):
     __tablename__ = 'feeds'
 
     feedid = Column(Integer, primary_key=True)
+    #category = Column(String, nulllabel=False)
     feedname = Column(String, nullable=False)
     sourceurl = Column(String, nullable=False)
     feedurl = Column(String, nullable=False)
     feedpubdate = Column(String, nullable=True)
-    #itemall = Column(Integer)
     itemunread = Column(Integer, default=0)
 
     def __repr__(self):

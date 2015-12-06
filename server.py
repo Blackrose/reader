@@ -8,8 +8,9 @@ import tornado.options
 from model import *
 from helper import *
 from feedfetcher import *
-
+from xml.etree import ElementTree
 import config
+import subprocess
 
 from tornado.ioloop import PeriodicCallback
 
@@ -28,6 +29,8 @@ class Application(tornado.web.Application):
 
             (r'/itemstatus', ItemStatusHandler),
             (r'/addfeed', AddFeedHandler),
+            (r'/importopml', ImportOpmlHandler),
+            (r'/update', UpdateHandler),
         ]
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__),
@@ -97,7 +100,8 @@ class LoginHandler(BaseHandler):
                 filter_by(password=enc_password)
 
         if result.count():
-            self.set_secure_cookie('uid', str(result.one().userid))
+            #self.set_secure_cookie('uid', str(result.one().userid))
+            self.set_secure_cookie('uid', str(1))
         self.redirect('/')
 
 
@@ -280,7 +284,58 @@ class AddFeedHandler(BaseHandler):
             dumper.save_to_db()
 
         self.redirect('/')
-    
+ 
+class ImportOpmlHandler(BaseHandler):
+    @tornado.web.authenticated
+    def post(self):
+        #new_feedurl = self.get_argument('importopml')
+        with open("feedly.opml", 'rt') as f:
+            tree = ElementTree.parse(f)
+            
+            for node in tree.findall('.//outline'):
+                title = node.attrib.get('title')
+                xmlurl = node.attrib.get('xmlUrl')
+                htmlurl = node.attrib.get('htmlUrl')
+        
+                if title and xmlurl and htmlurl:
+                    print title, xmlurl, htmlurl
+                    #urls.append(url)
+                    #return urls
+                    dumper = Fetcher(xmlurl)
+                    dumper.fast_fill(title, xmlurl, htmlurl)
+                    #dumper.parse_feed()
+                    #dumper.parse_items()
+                    dumper.save_to_db()
+                    """
+                    result = self.db.query(Feed).filter_by(feedurl=xmlurl)
+                    if result.count():
+                        pass
+                    else:
+                        dumper = Fetcher(xmlurl)
+                        dumper.parse_feed()
+                        dumper.parse_items()
+                        dumper.save_to_db()
+                    """
+        self.redirect('/')
+ 
+class UpdateHandler(BaseHandler):
+    @tornado.web.authenticated
+    def get(self):
+        #new_feedurl = self.get_argument('newfeed')
+        
+        subprocess.call(['python', 'feedfetcher.py'])
+        """
+        result = self.db.query(Feed).filter_by(feedurl=new_feedurl)
+        if result.count():
+            pass
+        else:
+            dumper = Fetcher(new_feedurl)
+            dumper.parse_feed()
+            dumper.parse_items()
+            dumper.save_to_db()
+
+        self.redirect('/')
+        """ 
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
@@ -291,5 +346,5 @@ if __name__ == '__main__':
     #schedule_check = PeriodicCallback(feedfetcher.check_new,
     #                                config.Fetch_per_hours*3600*1000)
     #schedule_check.start()
-
+    print "server is ready, enter IO loop"
     tornado.ioloop.IOLoop.instance().start()

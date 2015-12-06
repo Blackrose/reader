@@ -112,6 +112,16 @@ class Fetcher(object):
         self.db.add(self.feed)
         self.db.commit()
 
+    def fast_fill(self, title, xmlurl, htmlurl):
+        self.feed = Feed(
+                            feedname=title,
+                            feedurl=xmlurl,
+                            sourceurl=htmlurl,
+                            feedpubdate = to_time(time.gmtime())
+
+                            )
+
+
 
 class CheckNew(object):
     def __init__(self):
@@ -125,6 +135,7 @@ class CheckNew(object):
 
     def update_feeds(self):
         for feed in self.feeds:
+            print feed
             tmp_dumper = Fetcher(feed.feedurl)
             tmp_dumper.parse_feed()
             tmp_dumper.parse_items()

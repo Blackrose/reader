@@ -44,6 +44,14 @@
         <input type="text" name="newfeed" placeholder="Feed URL...">
         <input type="submit" value="Add">
     </form>
+    <h2><i class="fa fa-plus fa-fw"></i>Import OMPL</h2>
+    <form action="/importopml" method="post" class="clearfix">
+        {% raw xsrf_form_html() %}
+        <input type="text" name="newfeed" placeholder="Feed URL...">
+        <input type="submit" value="Import">
+    </form>
+
+    <h2><a href="/update"><i class="fa fa-edit fa-fw"></i>update</a></h2>
     <h2><a href="/edit"><i class="fa fa-edit fa-fw"></i>Manage</a></h2>
     <h2><a href="/logout"><i class="fa fa-sign-out fa-fw"></i>Logout</a></h2>
     {% end %}
