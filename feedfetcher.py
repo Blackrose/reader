@@ -17,17 +17,25 @@ import pdb
 
 
 class Fetcher(object):
-    def __init__(self, feed_url):
+    def __init__(self, feed_url, category):
         self.feedurl = feed_url
         self.db = scoped_session(sessionmaker(bind=engine))
         self.result = feedparser.parse(feed_url)
+        self.category_name = category
+        self.category_id = 0
 
     def parse_feed(self):
+        self.category_id = self.db.query(Category).filter_by(self.category_name)
+        if self.category_id.count():
+            pass
+        else:
+            self.category = Category(category_name = self.category_name)
         try:
             self.feed = self.db.query(Feed).filter_by(
                             feedurl=self.feedurl).one()
         except:
             self.feed = Feed(
+                            category=self.category_id,
                             feedname=self.result.feed.title,
                             feedurl=self.feedurl,
                             sourceurl=self.result.feed.link,
@@ -110,6 +118,7 @@ class Fetcher(object):
 
     def save_to_db(self):
         self.db.add(self.feed)
+        self.db.add(self.category)
         self.db.commit()
 
     def fast_fill(self, title, xmlurl, htmlurl):

@@ -70,11 +70,14 @@ class BaseHandler(tornado.web.RequestHandler):
 class SidebarModule(tornado.web.UIModule):
     def render(self, current_feed):
         all_feeds = self.handler.db.query(Feed).order_by(Feed.feedid)
+        #category = self.handler.db.query(Category).filter_by(Category.cat_id)
+        category = 'news' 
 
         return self.render_string('sidebar.html',
                                     all_feeds=all_feeds,
                                     current_feed=current_feed,
-                                    admin_user=self.current_user)
+                                    admin_user=self.current_user,
+                                    category_name=category)
 
 class ToolbarModule(tornado.web.UIModule):
     def render(self, admin_user, viewmode, subpage, pagination):
@@ -273,12 +276,13 @@ class AddFeedHandler(BaseHandler):
     @tornado.web.authenticated
     def post(self):
         new_feedurl = self.get_argument('newfeed')
+        category = self.get_argument('category')
 
         result = self.db.query(Feed).filter_by(feedurl=new_feedurl)
         if result.count():
             pass
         else:
-            dumper = Fetcher(new_feedurl)
+            dumper = Fetcher(new_feedurl, category)
             dumper.parse_feed()
             dumper.parse_items()
             dumper.save_to_db()

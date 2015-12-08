@@ -28,12 +28,22 @@ class Admin(Base):
     def __repr__(self):
         return '<Admin(username="%s")' % to_utf8(self.username)
 
+class Category(Base):
+    __tablename__ = 'category'
+
+    cat_id = Column(Integer, primary_key=True)
+    category_name = Column(String, nullable=False)
+
+    def __repr__(self):
+        return '<Category(category_name="%s")' % to_utf8(self.category)
+
+
 
 class Feed(Base):
     __tablename__ = 'feeds'
 
     feedid = Column(Integer, primary_key=True)
-    #category = Column(String, nulllabel=False)
+    category = Column(Integer, default=0)
     feedname = Column(String, nullable=False)
     sourceurl = Column(String, nullable=False)
     feedurl = Column(String, nullable=False)

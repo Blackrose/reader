@@ -4,6 +4,7 @@
             <i class="fa fa-rss fa-fw"></i>All
         </a>
     </h2>
+    <h2>{{ category_name }}</h2>
     {% if all_feeds.count() > 0 %}
     <ul id="feedlist">
         {% for feed in all_feeds %}
@@ -42,6 +43,7 @@
     <form action="/addfeed" method="post" class="clearfix">
         {% raw xsrf_form_html() %}
         <input type="text" name="newfeed" placeholder="Feed URL...">
+        <input type="text" name="category" placeholder="Category">
         <input type="submit" value="Add">
     </form>
     <h2><i class="fa fa-plus fa-fw"></i>Import OMPL</h2>
